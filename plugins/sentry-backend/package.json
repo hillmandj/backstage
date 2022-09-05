@@ -27,15 +27,15 @@
     "@types/express": "*",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
-    "winston": "^3.2.1",
     "node-fetch": "^2.6.7",
+    "winston": "^3.2.1",
     "yn": "^4.0.0"
   },
   "devDependencies": {
     "@backstage/cli": "^0.18.2-next.0",
     "@types/supertest": "^2.0.8",
-    "supertest": "^4.0.2",
-    "msw": "^0.45.0"
+    "msw": "^0.45.0",
+    "supertest": "^4.0.2"
   },
   "files": [
     "dist"
