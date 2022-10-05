@@ -16,6 +16,7 @@ import { ExternalRouteRef } from '@backstage/core-plugin-api';
 import { FetchApi } from '@backstage/core-plugin-api';
 import { FieldProps } from '@rjsf/core';
 import { FieldValidation } from '@rjsf/core';
+import type { FormProps } from '@rjsf/core';
 import { IdentityApi } from '@backstage/core-plugin-api';
 import { JsonObject } from '@backstage/types';
 import { JSONSchema7 } from 'json-schema';
@@ -36,6 +37,11 @@ export function createScaffolderFieldExtension<
 >(
   options: FieldExtensionOptions<TReturnValue, TInputProps>,
 ): Extension<FieldExtensionComponent<TReturnValue, TInputProps>>;
+
+// @public
+export function createScaffolderLayout<TInputProps = unknown>(
+  options: LayoutOptions,
+): Extension<LayoutComponent<TInputProps>>;
 
 // @public
 export type CustomFieldValidator<TFieldReturnValue> = (
@@ -66,6 +72,8 @@ export interface EntityPickerUiOptions {
   allowedKinds?: string[];
   // (undocumented)
   defaultKind?: string;
+  // (undocumented)
+  defaultNamespace?: string | false;
 }
 
 // @public
@@ -77,7 +85,11 @@ export const EntityTagsPickerFieldExtension: FieldExtensionComponent<
 // @public
 export interface EntityTagsPickerUiOptions {
   // (undocumented)
+  helperText?: string;
+  // (undocumented)
   kinds?: string[];
+  // (undocumented)
+  showCounts?: boolean;
 }
 
 // @public
@@ -105,6 +117,20 @@ export type FieldExtensionOptions<
   ) => JSX.Element | null;
   validation?: CustomFieldValidator<TFieldReturnValue>;
 };
+
+// @public
+export type LayoutComponent<_TInputProps> = () => null;
+
+// @public
+export interface LayoutOptions<P = any> {
+  // (undocumented)
+  component: LayoutTemplate<P>;
+  // (undocumented)
+  name: string;
+}
+
+// @public
+export type LayoutTemplate<T = any> = FormProps<T>['ObjectFieldTemplate'];
 
 // @public
 export type ListActionsResponse = Array<{
@@ -159,6 +185,8 @@ export interface OwnedEntityPickerUiOptions {
   allowedKinds?: string[];
   // (undocumented)
   defaultKind?: string;
+  // (undocumented)
+  defaultNamespace?: string | false;
 }
 
 // @public
@@ -173,6 +201,8 @@ export interface OwnerPickerUiOptions {
   allowArbitraryValues?: boolean;
   // (undocumented)
   allowedKinds?: string[];
+  // (undocumented)
+  defaultNamespace?: string | false;
 }
 
 // @public
@@ -194,6 +224,8 @@ export const RepoUrlPickerFieldExtension: FieldExtensionComponent<
 export interface RepoUrlPickerUiOptions {
   // (undocumented)
   allowedHosts?: string[];
+  // (undocumented)
+  allowedOrganizations?: string[];
   // (undocumented)
   allowedOwners?: string[];
   // (undocumented)
@@ -345,6 +377,9 @@ export interface ScaffolderGetIntegrationsListResponse {
   }[];
 }
 
+// @public
+export const ScaffolderLayouts: React.ComponentType;
+
 // @public (undocumented)
 export type ScaffolderOutputLink = {
   title?: string;
@@ -363,6 +398,14 @@ export const scaffolderPlugin: BackstagePlugin<
   },
   {
     registerComponent: ExternalRouteRef<undefined, true>;
+    viewTechDoc: ExternalRouteRef<
+      {
+        name: string;
+        kind: string;
+        namespace: string;
+      },
+      true
+    >;
   },
   {}
 >;

@@ -84,6 +84,7 @@ export class DatabaseManager {
     private readonly config: Config,
     private readonly prefix: string = 'backstage_plugin_',
     private readonly options?: DatabaseManagerOptions,
+    private readonly databaseCache: Map<string, Promise<Knex>> = new Map(),
   ) {}
 
   /**
@@ -307,52 +308,66 @@ export class DatabaseManager {
    *          plugin
    */
   private async getDatabase(pluginId: string): Promise<Knex> {
-    const pluginConfig = new ConfigReader(
-      this.getConfigForPlugin(pluginId) as JsonObject,
-    );
-
-    const databaseName = this.getDatabaseName(pluginId);
-    if (databaseName && this.getEnsureExistsConfig(pluginId)) {
-      try {
-        await ensureDatabaseExists(pluginConfig, databaseName);
-      } catch (error) {
-        throw new Error(
-          `Failed to connect to the database to make sure that '${databaseName}' exists, ${error}`,
-        );
-      }
+    if (this.databaseCache.has(pluginId)) {
+      return this.databaseCache.get(pluginId)!;
     }
 
-    let schemaOverrides;
-    if (this.getPluginDivisionModeConfig() === 'schema') {
-      schemaOverrides = this.getSchemaOverrides(pluginId);
-      if (this.getEnsureExistsConfig(pluginId)) {
+    const clientPromise = Promise.resolve().then(async () => {
+      const pluginConfig = new ConfigReader(
+        this.getConfigForPlugin(pluginId) as JsonObject,
+      );
+
+      const databaseName = this.getDatabaseName(pluginId);
+      if (databaseName && this.getEnsureExistsConfig(pluginId)) {
         try {
-          await ensureSchemaExists(pluginConfig, pluginId);
+          await ensureDatabaseExists(pluginConfig, databaseName);
         } catch (error) {
           throw new Error(
-            `Failed to connect to the database to make sure that schema for plugin '${pluginId}' exists, ${error}`,
+            `Failed to connect to the database to make sure that '${databaseName}' exists, ${error}`,
           );
         }
       }
-    }
 
-    const databaseClientOverrides = mergeDatabaseConfig(
-      {},
-      this.getDatabaseOverrides(pluginId),
-      schemaOverrides,
-    );
+      let schemaOverrides;
+      if (this.getPluginDivisionModeConfig() === 'schema') {
+        schemaOverrides = this.getSchemaOverrides(pluginId);
+        if (this.getEnsureExistsConfig(pluginId)) {
+          try {
+            await ensureSchemaExists(pluginConfig, pluginId);
+          } catch (error) {
+            throw new Error(
+              `Failed to connect to the database to make sure that schema for plugin '${pluginId}' exists, ${error}`,
+            );
+          }
+        }
+      }
 
-    const client = createDatabaseClient(pluginConfig, databaseClientOverrides);
-    this.startKeepaliveLoop(pluginId, client);
+      const databaseClientOverrides = mergeDatabaseConfig(
+        {},
+        this.getDatabaseOverrides(pluginId),
+        schemaOverrides,
+      );
 
-    return client;
+      const client = createDatabaseClient(
+        pluginConfig,
+        databaseClientOverrides,
+      );
+      this.startKeepaliveLoop(pluginId, client);
+      return client;
+    });
+
+    this.databaseCache.set(pluginId, clientPromise);
+
+    return clientPromise;
   }
 
   private startKeepaliveLoop(pluginId: string, client: Knex): void {
     let lastKeepaliveFailed = false;
 
     setInterval(() => {
-      client.raw('select 1').then(
+      // During testing it can happen that the environment is torn down and
+      // this client is `undefined`, but this interval is still run.
+      client?.raw('select 1').then(
         () => {
           lastKeepaliveFailed = false;
         },

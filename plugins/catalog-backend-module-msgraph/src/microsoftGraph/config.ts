@@ -63,6 +63,12 @@ export type MicrosoftGraphProviderConfig = {
    */
   userFilter?: string;
   /**
+   * The fields to be fetched on query.
+   *
+   * E.g. ["id", "displayName", "description"]
+   */
+  userSelect?: string[];
+  /**
    * The "expand" argument to apply to users.
    *
    * E.g. "manager".
@@ -144,6 +150,7 @@ export function readMicrosoftGraphConfig(
 
     const userExpand = providerConfig.getOptionalString('userExpand');
     const userFilter = providerConfig.getOptionalString('userFilter');
+    const userSelect = providerConfig.getOptionalStringArray('userSelect');
     const userGroupMemberFilter = providerConfig.getOptionalString(
       'userGroupMemberFilter',
     );
@@ -196,6 +203,7 @@ export function readMicrosoftGraphConfig(
       clientSecret,
       userExpand,
       userFilter,
+      userSelect,
       userGroupMemberFilter,
       userGroupMemberSearch,
       groupExpand,
@@ -253,6 +261,15 @@ export function readProviderConfig(
   const groupSearch = config.getOptionalString('group.search');
   const groupSelect = config.getOptionalStringArray('group.select');
 
+  const queryMode = config.getOptionalString('queryMode');
+  if (
+    queryMode !== undefined &&
+    queryMode !== 'basic' &&
+    queryMode !== 'advanced'
+  ) {
+    throw new Error(`queryMode must be one of: basic, advanced`);
+  }
+
   const userGroupMemberFilter = config.getOptionalString(
     'userGroupMember.filter',
   );
@@ -292,6 +309,7 @@ export function readProviderConfig(
     groupFilter,
     groupSearch,
     groupSelect,
+    queryMode,
     userGroupMemberFilter,
     userGroupMemberSearch,
   };

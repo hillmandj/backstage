@@ -1,5 +1,60 @@
 # @backstage/plugin-bazaar
 
+## 0.1.25-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog-react@1.2.0-next.1
+  - @backstage/plugin-catalog@1.6.0-next.1
+  - @backstage/cli@0.20.0-next.1
+  - @backstage/catalog-client@1.1.1-next.1
+  - @backstage/core-components@0.11.2-next.1
+  - @backstage/core-plugin-api@1.0.7-next.1
+  - @backstage/catalog-model@1.1.2-next.1
+
+## 0.1.25-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-model@1.1.2-next.0
+  - @backstage/core-components@0.11.2-next.0
+  - @backstage/cli@0.20.0-next.0
+  - @backstage/catalog-client@1.1.1-next.0
+  - @backstage/plugin-catalog@1.5.2-next.0
+  - @backstage/plugin-catalog-react@1.1.5-next.0
+  - @backstage/core-plugin-api@1.0.7-next.0
+
+## 0.1.24
+
+### Patch Changes
+
+- 817f3196f6: Updated React Router dependencies to be peer dependencies.
+- 1dd12349d1: Fixed broken routing by removing the wrapping `Router` from the `RoutedTabs` children.
+- Updated dependencies
+  - @backstage/cli@0.19.0
+  - @backstage/core-components@0.11.1
+  - @backstage/core-plugin-api@1.0.6
+  - @backstage/plugin-catalog-react@1.1.4
+  - @backstage/plugin-catalog@1.5.1
+  - @backstage/catalog-client@1.1.0
+  - @backstage/catalog-model@1.1.1
+
+## 0.1.24-next.2
+
+### Patch Changes
+
+- 1dd12349d1: Fixed broken routing by removing the wrapping `Router` from the `RoutedTabs` children.
+- Updated dependencies
+  - @backstage/plugin-catalog-react@1.1.4-next.2
+  - @backstage/catalog-client@1.1.0-next.2
+  - @backstage/catalog-model@1.1.1-next.0
+  - @backstage/core-components@0.11.1-next.3
+  - @backstage/core-plugin-api@1.0.6-next.3
+  - @backstage/plugin-catalog@1.5.1-next.3
+  - @backstage/cli@0.19.0-next.3
+
 ## 0.1.24-next.1
 
 ### Patch Changes

@@ -23,6 +23,7 @@ import { Logger } from 'winston';
 import { Observable } from '@backstage/types';
 import { Octokit } from 'octokit';
 import { PluginDatabaseManager } from '@backstage/backend-common';
+import { PluginTaskScheduler } from '@backstage/backend-tasks';
 import { Schema } from 'jsonschema';
 import { ScmIntegrationRegistry } from '@backstage/integration';
 import { ScmIntegrations } from '@backstage/integration';
@@ -31,6 +32,7 @@ import { TaskSpec } from '@backstage/plugin-scaffolder-common';
 import { TaskSpecV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { TemplateInfo } from '@backstage/plugin-scaffolder-common';
 import { UrlReader } from '@backstage/backend-common';
+import { UserEntity } from '@backstage/catalog-model';
 import { Writable } from 'stream';
 
 // @public
@@ -44,6 +46,10 @@ export type ActionContext<Input extends JsonObject> = {
   createTemporaryDirectory(): Promise<string>;
   templateInfo?: TemplateInfo;
   isDryRun?: boolean;
+  user?: {
+    entity?: UserEntity;
+    ref?: string;
+  };
 };
 
 // @public
@@ -54,6 +60,8 @@ export const createBuiltinActions: (
 // @public
 export interface CreateBuiltInActionsOptions {
   additionalTemplateFilters?: Record<string, TemplateFilter>;
+  // (undocumented)
+  additionalTemplateGlobals?: Record<string, TemplateGlobal>;
   catalogClient: CatalogApi;
   config: Config;
   integrations: ScmIntegrations;
@@ -102,6 +110,7 @@ export function createFetchTemplateAction(options: {
   reader: UrlReader;
   integrations: ScmIntegrations;
   additionalTemplateFilters?: Record<string, TemplateFilter>;
+  additionalTemplateGlobals?: Record<string, TemplateGlobal>;
 }): TemplateAction<{
   url: string;
   targetPath?: string | undefined;
@@ -187,6 +196,7 @@ export function createGithubRepoCreateAction(options: {
   allowRebaseMerge?: boolean | undefined;
   allowSquashMerge?: boolean | undefined;
   allowMergeCommit?: boolean | undefined;
+  allowAutoMerge?: boolean | undefined;
   requireCodeOwnerReviews?: boolean | undefined;
   requiredStatusCheckContexts?: string[] | undefined;
   repoVisibility?: 'internal' | 'private' | 'public' | undefined;
@@ -352,6 +362,7 @@ export function createPublishGithubAction(options: {
   allowRebaseMerge?: boolean | undefined;
   allowSquashMerge?: boolean | undefined;
   allowMergeCommit?: boolean | undefined;
+  allowAutoMerge?: boolean | undefined;
   sourcePath?: string | undefined;
   requireCodeOwnerReviews?: boolean | undefined;
   requiredStatusCheckContexts?: string[] | undefined;
@@ -442,6 +453,7 @@ export type CreateWorkerOptions = {
   workingDirectory: string;
   logger: Logger;
   additionalTemplateFilters?: Record<string, TemplateFilter>;
+  additionalTemplateGlobals?: Record<string, TemplateGlobal>;
 };
 
 // @public
@@ -494,6 +506,8 @@ export class DatabaseTaskStore implements TaskStore {
       taskId: string;
     }[];
   }>;
+  // (undocumented)
+  shutdownTask({ taskId }: TaskStoreShutDownTaskOptions): Promise<void>;
 }
 
 // @public
@@ -530,6 +544,8 @@ export interface RouterOptions {
   // (undocumented)
   additionalTemplateFilters?: Record<string, TemplateFilter>;
   // (undocumented)
+  additionalTemplateGlobals?: Record<string, TemplateGlobal>;
+  // (undocumented)
   catalogClient: CatalogApi;
   // (undocumented)
   config: Config;
@@ -541,6 +557,8 @@ export interface RouterOptions {
   logger: Logger;
   // (undocumented)
   reader: UrlReader;
+  // (undocumented)
+  scheduler?: PluginTaskScheduler;
   // (undocumented)
   taskBroker?: TaskBroker;
   // (undocumented)
@@ -583,6 +601,7 @@ export type ScaffolderPluginOptions = {
   taskWorkers?: number;
   taskBroker?: TaskBroker;
   additionalTemplateFilters?: Record<string, TemplateFilter>;
+  additionalTemplateGlobals?: Record<string, TemplateGlobal>;
 };
 
 // @public
@@ -736,6 +755,8 @@ export interface TaskStore {
       taskId: string;
     }[];
   }>;
+  // (undocumented)
+  shutdownTask?({ taskId }: TaskStoreShutDownTaskOptions): Promise<void>;
 }
 
 // @public
@@ -760,6 +781,11 @@ export type TaskStoreEmitOptions<TBody = JsonObject> = {
 export type TaskStoreListEventsOptions = {
   taskId: string;
   after?: number | undefined;
+};
+
+// @public
+export type TaskStoreShutDownTaskOptions = {
+  taskId: string;
 };
 
 // @public
@@ -796,4 +822,9 @@ export class TemplateActionRegistry {
 
 // @public (undocumented)
 export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
+
+// @public (undocumented)
+export type TemplateGlobal =
+  | ((...args: JsonValue[]) => JsonValue | undefined)
+  | JsonValue;
 ```

@@ -138,6 +138,11 @@ techdocs:
 dynatrace:
   baseUrl: https://your.dynatrace.instance.com
 
+# Score-cards sample configuration.
+scorecards:
+  jsonDataUrl: https://raw.githubusercontent.com/Oriflame/backstage-plugins/main/plugins/score-card/sample-data/
+  wikiLinkTemplate: https://link-to-wiki/{id}
+
 sentry:
   organization: my-company
 
@@ -444,3 +449,6 @@ apacheAirflow:
 
 gocd:
   baseUrl: https://your.gocd.instance.com
+
+permission:
+  enabled: true

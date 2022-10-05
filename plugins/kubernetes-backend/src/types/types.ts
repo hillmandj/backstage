@@ -18,6 +18,7 @@ import { Entity } from '@backstage/catalog-model';
 import { Logger } from 'winston';
 import type { JsonObject } from '@backstage/types';
 import type {
+  CustomResourceMatcher,
   FetchResponse,
   KubernetesFetchError,
   KubernetesRequestAuth,
@@ -90,12 +91,6 @@ export interface CustomResource extends ObjectToFetch {
  *
  * @alpha
  */
-export type CustomResourceMatcher = Omit<ObjectToFetch, 'objectType'>;
-
-/**
- *
- * @alpha
- */
 export type KubernetesObjectTypes =
   | 'pods'
   | 'services'
@@ -126,11 +121,22 @@ export interface KubernetesClustersSupplier {
 }
 
 /**
+ * @alpha
+ */
+export interface ServiceLocatorRequestContext {
+  objectTypesToFetch: Set<ObjectToFetch>;
+  customResources: CustomResourceMatcher[];
+}
+
+/**
  * Used to locate which cluster(s) a service is running on
  * @alpha
  */
 export interface KubernetesServiceLocator {
-  getClustersByEntity(entity: Entity): Promise<{ clusters: ClusterDetails[] }>;
+  getClustersByEntity(
+    entity: Entity,
+    requestContext: ServiceLocatorRequestContext,
+  ): Promise<{ clusters: ClusterDetails[] }>;
 }
 
 /**

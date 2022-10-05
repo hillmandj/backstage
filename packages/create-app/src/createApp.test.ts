@@ -23,21 +23,17 @@ import createApp from './createApp';
 
 jest.mock('./lib/tasks');
 
-beforeAll(() => {
-  mockFs({
-    [`${__dirname}/package.json`]: '', // required by `findPaths(__dirname)`
-    'templates/': mockFs.load(path.resolve(__dirname, '../templates/')),
-  });
-});
-
-afterAll(() => {
-  mockFs.restore();
-});
+// By mocking this the filesystem mocks won't mess with reading all of the package.jsons
+jest.mock('./lib/versions', () => ({
+  packageVersions: { root: '1.0.0' },
+}));
 
 const promptMock = jest.spyOn(inquirer, 'prompt');
 const checkPathExistsMock = jest.spyOn(tasks, 'checkPathExistsTask');
 const templatingMock = jest.spyOn(tasks, 'templatingTask');
 const checkAppExistsMock = jest.spyOn(tasks, 'checkAppExistsTask');
+const initGitRepositoryMock = jest.spyOn(tasks, 'initGitRepository');
+const readGitConfig = jest.spyOn(tasks, 'readGitConfig');
 const createTemporaryAppFolderMock = jest.spyOn(
   tasks,
   'createTemporaryAppFolderTask',
@@ -46,10 +42,26 @@ const moveAppMock = jest.spyOn(tasks, 'moveAppTask');
 const buildAppMock = jest.spyOn(tasks, 'buildAppTask');
 
 describe('command entrypoint', () => {
+  beforeAll(() => {
+    mockFs({
+      [`${__dirname}/package.json`]: '', // required by `findPaths(__dirname)`
+      'templates/': mockFs.load(path.resolve(__dirname, '../templates/')),
+    });
+  });
+
+  afterEach(() => {
+    mockFs.restore();
+  });
+
   beforeEach(() => {
     promptMock.mockResolvedValueOnce({
       name: 'MyApp',
       dbType: 'PostgreSQL',
+    });
+    readGitConfig.mockResolvedValue({
+      name: 'git-user',
+      email: 'git-email',
+      defaultBranch: 'git-default-branch',
     });
   });
 
@@ -62,6 +74,7 @@ describe('command entrypoint', () => {
     await createApp(cmd);
     expect(checkAppExistsMock).toHaveBeenCalled();
     expect(createTemporaryAppFolderMock).toHaveBeenCalled();
+    expect(initGitRepositoryMock).toHaveBeenCalled();
     expect(templatingMock).toHaveBeenCalled();
     expect(moveAppMock).toHaveBeenCalled();
     expect(buildAppMock).toHaveBeenCalled();
@@ -71,6 +84,7 @@ describe('command entrypoint', () => {
     const cmd = { path: 'myDirectory' } as unknown as Command;
     await createApp(cmd);
     expect(checkPathExistsMock).toHaveBeenCalled();
+    expect(initGitRepositoryMock).toHaveBeenCalled();
     expect(templatingMock).toHaveBeenCalled();
     expect(buildAppMock).toHaveBeenCalled();
   });
@@ -79,5 +93,12 @@ describe('command entrypoint', () => {
     const cmd = { skipInstall: true } as unknown as Command;
     await createApp(cmd);
     expect(buildAppMock).not.toHaveBeenCalled();
+  });
+
+  it('should not call `initGitRepository` when `gitConfig` is undefined', async () => {
+    const cmd = {} as unknown as Command;
+    readGitConfig.mockResolvedValue({});
+    await createApp(cmd);
+    expect(initGitRepositoryMock).not.toHaveBeenCalled();
   });
 });

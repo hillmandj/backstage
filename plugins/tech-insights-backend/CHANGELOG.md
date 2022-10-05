@@ -1,5 +1,64 @@
 # @backstage/plugin-tech-insights-backend
 
+## 0.5.3-next.1
+
+### Patch Changes
+
+- f7cbfb97ed: Modify router endpoint to handle singular and collections of request parameters similarly.
+- Updated dependencies
+  - @backstage/catalog-client@1.1.1-next.1
+  - @backstage/backend-common@0.15.2-next.1
+  - @backstage/backend-tasks@0.3.6-next.1
+  - @backstage/catalog-model@1.1.2-next.1
+  - @backstage/config@1.0.3-next.1
+  - @backstage/errors@1.1.2-next.1
+  - @backstage/plugin-tech-insights-common@0.2.7-next.1
+  - @backstage/plugin-tech-insights-node@0.3.5-next.1
+
+## 0.5.3-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-model@1.1.2-next.0
+  - @backstage/plugin-tech-insights-node@0.3.5-next.0
+  - @backstage/catalog-client@1.1.1-next.0
+  - @backstage/backend-common@0.15.2-next.0
+  - @backstage/backend-tasks@0.3.6-next.0
+  - @backstage/config@1.0.3-next.0
+  - @backstage/errors@1.1.2-next.0
+  - @backstage/plugin-tech-insights-common@0.2.7-next.0
+
+## 0.5.2
+
+### Patch Changes
+
+- 8872cc735d: Fixed a bug where the database option to skip migrations was ignored.
+- 12c6a07c2a: Changed the description of the `techdocsAnnotationFactName` fact.
+- 2e0689e536: Support for timeout in FactRetrieverRegistrationOptions
+- 9e8e9f5243: Modify Tech insight initialization to expose FactRetrieverEngine. Enables users to trigger fact retrieval manually or reschedule retrievers on runtime.
+- Updated dependencies
+  - @backstage/backend-common@0.15.1
+  - @backstage/plugin-tech-insights-node@0.3.4
+  - @backstage/backend-tasks@0.3.5
+  - @backstage/catalog-client@1.1.0
+  - @backstage/catalog-model@1.1.1
+  - @backstage/config@1.0.2
+  - @backstage/errors@1.1.1
+
+## 0.5.2-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-client@1.1.0-next.2
+  - @backstage/catalog-model@1.1.1-next.0
+  - @backstage/config@1.0.2-next.0
+  - @backstage/errors@1.1.1-next.0
+  - @backstage/backend-common@0.15.1-next.3
+  - @backstage/backend-tasks@0.3.5-next.1
+  - @backstage/plugin-tech-insights-node@0.3.4-next.1
+
 ## 0.5.2-next.1
 
 ### Patch Changes
