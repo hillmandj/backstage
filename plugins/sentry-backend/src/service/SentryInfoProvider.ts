@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022 The Backstage Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { CatalogApi } from '@backstage/catalog-client';
 import {
   Entity,
@@ -14,7 +29,7 @@ export interface SentryInfoProvider {
      */
     entityRef: CompoundEntityRef;
     backstageToken?: string;
-  }): Promise<SentryInfo>
+  }): Promise<SentryInfo>;
 }
 
 /** @publc **/
@@ -105,7 +120,7 @@ export class SentryConfig {
   getInstanceConfig(instanceName?: string): SentryInstanceConfig {
     const DEFAULT_SENTRY_NAME = 'default';
 
-    if (!instanceName || instanceName == DEFAULT_SENTRY_NAME) {
+    if (!instanceName || instanceName === DEFAULT_SENTRY_NAME) {
       // no new name provided, use default configuration
       const instanceConfig = this.instances.find(
         c => c.name === DEFAULT_SENTRY_NAME,
@@ -148,7 +163,7 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
   static fromConfig(options: {
     config: Config;
     catalog: CatalogApi;
-  }) : DefaultSentryInfoProvider {
+  }): DefaultSentryInfoProvider {
     return new DefaultSentryInfoProvider(
       SentryConfig.fromConfig(options.config),
       options.catalog,
@@ -156,7 +171,7 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
   }
 
   async getInstance(opt: {
-    entityRef: CompoundEnttyRef;
+    entityRef: CompoundEntityRef;
     backstageToken?: string;
   }): Promise<SentryInfo> {
     // load entity
@@ -167,21 +182,18 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
     const entityName = stringifyEntityRef(opt.entityRef);
 
     if (!entity) {
-      throw new Error(
-        `Couldn't find entity with name: ${entityName}`,
-      );
+      throw new Error(`Couldn't find entity with name: ${entityName}`);
     }
 
     // lookup `[sentryInstanceName#]projectSlug` from entity annotation
-    const sentryInstanceAndProject = entity.metadata.annotations?.[
-      DefaultSentryInfoProvider.SENTRY_ANNOTATION
-    ]
+    const sentryInstanceAndProject =
+      entity.metadata.annotations?.[
+        DefaultSentryInfoProvider.SENTRY_ANNOTATION
+      ];
 
     if (!sentryInstanceAndProject) {
       throw new Error(
-        `Couldn't find sentry annotation (${
-          DefaultSentryInfoProvider.SENTRY_ANNOTATION
-        }) on entity with name ${entityName}`,
+        `Couldn't find sentry annotation (${DefaultSentryInfoProvider.SENTRY_ANNOTATION}) on entity with name ${entityName}`,
       );
     }
 
@@ -189,7 +201,7 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
     let sentryInstanceName: string | undefined;
     const splitIndex = sentryInstanceAndProject.indexOf(':');
 
-    if (splitIndex == -1) {
+    if (splitIndex === -1) {
       // no sentryInstanceName specified, use default
       sentryInstanceName = sentryInstanceAndProject;
     } else {
@@ -207,7 +219,7 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
     return {
       baseUrl: instanceConfig.baseUrl,
       headers: {
-        Authorization: `Bearer ${instanceConfig.authToken}`
+        Authorization: `Bearer ${instanceConfig.authToken}`,
       },
     };
   }

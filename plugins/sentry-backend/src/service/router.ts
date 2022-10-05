@@ -14,27 +14,51 @@
  * limitations under the License.
  */
 
+import { SentryInfoProvider } from './SentryInfoProvider';
+import { SentryApi } from './SentryApi';
 import { errorHandler } from '@backstage/backend-common';
+import { getBearerTokenFromAuthorizationHeader } from '@backstage/plugin-auth-node';
 import express from 'express';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
 
 export interface RouterOptions {
   logger: Logger;
+  sentryInfoProvider: SentryInfoProvider;
 }
 
 export async function createRouter(
   options: RouterOptions,
 ): Promise<express.Router> {
-  const { logger } = options;
+  const { sentryInfoProvider, logger } = options;
 
   const router = Router();
   router.use(express.json());
 
-  router.get('/health', (_, response) => {
-    logger.info('PONG!');
-    response.send({ status: 'ok' });
-  });
+  router.get(
+    '/v1/entity/:namespace/:kind/:name/issues',
+    async (request, response) => {
+      const { namespace, kind, name } = request.params;
+      const token = getBearerTokenFromAuthorizationHeader(
+        request.header('authorization'),
+      );
+
+      const sentryInfo = await sentryInfoProvider.getInstance({
+        entityRef: {
+          kind,
+          namespace,
+          name,
+        },
+        backstageToken: token,
+      });
+
+      // need this to be a json array of type SentryIssue
+      const issues = await sentryApi.fetchIssues(sentryInfo);
+
+      // response.json({ issues: issues });
+    },
+  );
+
   router.use(errorHandler());
   return router;
 }

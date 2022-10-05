@@ -23,7 +23,11 @@
   },
   "dependencies": {
     "@backstage/backend-common": "^0.15.1-next.0",
+    "@backstage/catalog-client": "^1.0.5-next.0",
+    "@backstage/catalog-model": "^1.1.0",
     "@backstage/config": "^1.0.1",
+    "@backstage/plugin-auth-node": "^0.2.5-next.2",
+    "@backstage/plugin-sentry": "^0.4.2-next.2",
     "@types/express": "*",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
