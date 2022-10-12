@@ -3339,7 +3339,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@backstage/catalog-model@npm:^1.1.0-next.2, @backstage/catalog-model@npm:^1.1.1":
+"@backstage/catalog-model@npm:^1.1.0, @backstage/catalog-model@npm:^1.1.0-next.2, @backstage/catalog-model@npm:^1.1.1":
   version: 1.1.1
   resolution: "@backstage/catalog-model@npm:1.1.1"
   dependencies:

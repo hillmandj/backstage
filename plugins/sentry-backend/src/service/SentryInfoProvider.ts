@@ -28,6 +28,8 @@ export interface SentryInfoProvider {
      * The entity to get the info about
      */
     entityRef: CompoundEntityRef;
+    organization: string;
+    project: string;
     backstageToken?: string;
   }): Promise<SentryInfo>;
 }
@@ -35,6 +37,8 @@ export interface SentryInfoProvider {
 /** @publc **/
 export interface SentryInfo {
   baseUrl: string;
+  organization: string;
+  project: string;
   headers?: Record<string, string | string[]>;
 }
 
@@ -172,6 +176,8 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
 
   async getInstance(opt: {
     entityRef: CompoundEntityRef;
+    organization: string;
+    project: string;
     backstageToken?: string;
   }): Promise<SentryInfo> {
     // load entity
@@ -221,6 +227,8 @@ export class DefaultSentryInfoProvider implements SentryInfoProvider {
       headers: {
         Authorization: `Bearer ${instanceConfig.authToken}`,
       },
+      organization,
+      project,
     };
   }
 }

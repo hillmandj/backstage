@@ -16,9 +16,29 @@
 import { SentryIssue } from '@backstage/plugin-sentry';
 import type { SentryInfo } from './SentryInfoProvider';
 
-// Look at sentry plugin production-api.ts to move forward on this
-//
-// open questions: do we need entity here?
 export class SentryApi {
-  async fetchIssues(sentryInfo: SentryInfo): Promise<SentryIssue[]> {}
+  async fetchIssues(
+    sentryInfo: SentryInfo,
+    options: {
+      statsPeriod: string;
+    },
+  ): Promise<SentryIssue[]> {
+    const { baseUrl, headers, organization, project } = sentryInfo;
+    const { statsPeriod } = options;
+
+    if (!project) {
+      return [];
+    }
+
+    const response = await fetch(
+      `${baseUrl}/0/projects/${organization}/${project}/issues/?statsPeriod=${options.statsPeriod}`,
+      headers,
+    );
+
+    if (response.status >= 400 && response.status < 600) {
+      throw new Error('Failed fetching Sentry issues');
+    }
+
+    return (await response.json()) as SentryIssue[];
+  }
 }

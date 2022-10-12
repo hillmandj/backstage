@@ -24,24 +24,27 @@ import { Logger } from 'winston';
 
 export interface RouterOptions {
   logger: Logger;
+  sentryApi: SentryApi;
   sentryInfoProvider: SentryInfoProvider;
 }
 
 export async function createRouter(
   options: RouterOptions,
 ): Promise<express.Router> {
-  const { sentryInfoProvider, logger } = options;
+  const { sentryApi, sentryInfoProvider, logger } = options;
 
   const router = Router();
   router.use(express.json());
 
   router.get(
-    '/v1/entity/:namespace/:kind/:name/issues',
+    '/v1/entity/:namespace/:kind/:name/sentry/:organization/:project/issues',
     async (request, response) => {
-      const { namespace, kind, name } = request.params;
-      const token = getBearerTokenFromAuthorizationHeader(
+      const { namespace, kind, name, organization, project } = request.params;
+      const backstageToken = getBearerTokenFromAuthorizationHeader(
         request.header('authorization'),
       );
+
+      const statsPeriod = request.query.statsPeriod;
 
       const sentryInfo = await sentryInfoProvider.getInstance({
         entityRef: {
@@ -49,13 +52,14 @@ export async function createRouter(
           namespace,
           name,
         },
-        backstageToken: token,
+        organization,
+        project,
+        backstageToken,
       });
 
-      // need this to be a json array of type SentryIssue
-      const issues = await sentryApi.fetchIssues(sentryInfo);
+      const issues = await sentryApi.fetchIssues(sentryInfo, { statsPeriod });
 
-      // response.json({ issues: issues });
+      response.json({ issues: issues });
     },
   );
 

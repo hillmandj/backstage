@@ -44,15 +44,15 @@ export class ProductionSentryApi implements SentryApi {
       return [];
     }
 
-    // HAVE TO CHANGE THIS TO HIT YOUR BACKEND API
-    // USE ENTITY TO BUILD OUT PATH THAT MATCHES WHAT'S IN YOUR ROUTER
-    const apiUrl = `${await this.discoveryApi.getBaseUrl('proxy')}/sentry/api`;
     const authOpts = await this.authOptions();
-
     const queryPart = query ? `&query=${query}` : '';
 
     const response = await fetch(
-      `${apiUrl}/0/projects/${organization}/${project}/issues/?statsPeriod=${statsFor}${queryPart}`,
+      `v1/entity/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
+        entity.kind,
+      )}/${encodeURIComponent(
+        entity.name,
+      )}/sentry/${organization}/${project}/issues?statsPeriod=${statsFor}${queryPart}`,
       authOpts,
     );
 
